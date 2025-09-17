@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DoLA 参数对比 - 四列</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; background-color: #f5f5f5; padding: 20px; }
+
+        .container { max-width: 1800px; margin: 0 auto; }
+
+        h1 { text-align: center; color: #333; margin-bottom: 16px; font-size: 2.2em; font-weight: 400; }
+        .subtitle { text-align: center; color: #64748b; margin-bottom: 24px; font-size: 14px; }
+
+        .config-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+        .config-card { background: #fff; border-radius: 10px; padding: 14px 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+        .config-card h3 { font-size: 16px; margin-bottom: 8px; font-weight: 600; color: #0f172a; text-align: center; }
+        .config-card .line { font-size: 13px; color: #334155; margin: 4px 0; text-align: center; }
+        .config-card code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+        .gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; margin-bottom: 40px; }
+        .column { background: white; border-radius: 12px; padding: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        .column h2 { text-align: center; color: #334155; margin-bottom: 14px; font-size: 1.2em; font-weight: 600; padding-bottom: 10px; border-bottom: 2px solid #eee; }
+
+        /* 头部颜色区分（可选） */
+        .dyn1-column h2 { color: #2563eb; }
+        .dyn2-column h2 { color: #ea580c; }
+        .dynseq-column h2 { color: #16a34a; }
+        .static-column h2 { color: #7c3aed; }
+
+        .image-item { margin-bottom: 22px; border-bottom: 1px solid #f0f0f0; padding-bottom: 14px; }
+        .image-item:last-child { border-bottom: none; margin-bottom: 0; }
+
+        .prompt { background-color: #f8fafc; border-left: 4px solid #e2e8f0; padding: 10px 12px; margin-bottom: 10px; font-size: 13px; line-height: 1.6; color: #475569; border-radius: 0 8px 8px 0; font-style: italic; }
+        .dyn1-column .prompt { border-left-color: #3b82f6; background-color: #eff6ff; }
+        .dyn2-column .prompt { border-left-color: #fb923c; background-color: #fff7ed; }
+        .dynseq-column .prompt { border-left-color: #22c55e; background-color: #ecfdf5; }
+        .static-column .prompt { border-left-color: #a78bfa; background-color: #f5f3ff; }
+
+        .image-container { text-align: center; }
+        .image-container img { width: 85%; max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.12); transition: transform 0.25s ease; }
+        .image-container img:hover { transform: scale(1.02); }
+
+        .image-index { display: inline-block; background: #334155; color: white; padding: 3px 7px; border-radius: 4px; font-size: 12px; font-weight: 500; margin-bottom: 8px; }
+
+        @media (max-width: 1280px) {
+            .config-summary { grid-template-columns: repeat(2, 1fr); }
+            .gallery { grid-template-columns: repeat(2, 1fr); gap: 18px; }
+        }
+        @media (max-width: 720px) {
+            .config-summary { grid-template-columns: 1fr; }
+            .gallery { grid-template-columns: 1fr; }
+        }
+    </style>
+    <!-- 数学公式渲染（MathJax） -->
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <!-- 提示：下面所有图片路径均为相对地址，确保与本文件在同一目录下的子目录可用 -->
+    <!-- 目录: dola_dyn_a0.02_b8.0 / dola_dyn_a0.05_b2.0 / dola_dynseq_a0.10_b1.0 / dola_static_g0.50_a0.10_b1.0 -->
+</head>
+<body>
+    <div class="container">
+        <h1>DoLA 参数对比（四列）</h1>
+        <div class="subtitle">四组配置的 prompt 完全一致；每列图片均来自对应目录（相对路径）。</div>
+
+        <!-- 顶部：公式与参数说明 -->
+        <div class="config-summary" style="margin-top: 8px;">
+            <div class="config-card" style="grid-column: 1 / -1; text-align: left;">
+                <h3 style="text-align:left; margin-bottom:10px;">公式（MathJax 渲染）</h3>
+                <div class="line" style="text-align:left;">
+                    $$
+                    \begin{aligned}
+                    &\text{(投影与概率)} && q_t^{(j)}(x) = \operatorname{softmax}\big(\,\varphi(h_t^{(j)})\,\big)_x,\quad q_t^{(N)}(x) = \operatorname{softmax}\big(\,\varphi(h_t^{(N)})\,\big)_x \\
+                    &\text{(候选头集合)} && \mathcal{V}_t = \big\{ x\mid q_t^{(N)}(x) \ge \alpha\, \max_w q_t^{(N)}(w) \big\} \\
+                    &\text{(动态选层)} && M_t = \underset{j\in\mathcal{J}}{\arg\max}\; \operatorname{JSD}\big(q_t^{(N)}\,\Vert\, q_t^{(j)}\big),\quad \text{静态： } M = \lfloor \gamma N \rfloor \\
+                    &\text{(JSD)} && \operatorname{JSD}(p\Vert q) = \tfrac{1}{2}\,\operatorname{KL}(p\Vert m) + \tfrac{1}{2}\,\operatorname{KL}(q\Vert m),\; m=\tfrac{1}{2}(p+q) \\
+                    &\text{(对比分数)} && F_t(x) = \log q_t^{(N)}(x) - \beta\, \log q_t^{(M)}(x),\; x\in\mathcal{V}_t;\; \text{否则 } F_t(x)=-\infty \\
+                    &\text{(最终分布)} && \hat{p}_t(x) = \operatorname{softmax}\big(F_t(x)\big)
+                    \end{aligned}
+                    $$
+                </div>
+                <h3 style="text-align:left; margin: 16px 0 8px;">参数含义</h3>
+                <div class="line" style="text-align:left;">
+                    <strong>mode</strong>：`dynamic` 按步选择 $M_t$（最大 JSD 的浅层)；`static` 采用固定早期层 $M=\lfloor\gamma N\rfloor$。
+                </div>
+                <div class="line" style="text-align:left;">
+                    <strong>alpha (α)</strong>：头集合阈值，$\alpha\in[0,1]$；越大候选词越少（更激进）。
+                </div>
+                <div class="line" style="text-align:left;">
+                    <strong>beta (β)</strong>：对比系数，控制对浅层分布 $q^{(M)}$ 的抑制强度；越大抑制越强。
+                </div>
+                <div class="line" style="text-align:left;">
+                    <strong>gamma (γ)</strong>：静态模式下的早期层比例，$M=\lfloor\gamma N\rfloor$（$N$ 为总层数）。
+                </div>
+                <div class="line" style="text-align:left;">
+                    <strong>J (候选层集合)</strong>：供动态模式选择的浅层集合 $\mathcal{J}$（默认取 $\{\lfloor N/4\rfloor,\lfloor N/2\rfloor,\lfloor 3N/4\rfloor\}$）。
+                </div>
+                <div class="line" style="text-align:left;">
+                    <strong>jsd_scope</strong>：`per_token` 按步计算 JSD；`per_seq` 以序列尺度聚合（如本页 Dyn‑Seq）。
+                </div>
+            </div>
+        </div>
+
+        <div class="config-summary" id="config-summary"></div>
+
+        <div class="gallery">
+            <div class="column dyn1-column">
+                <h2>Dyn alpha=0.02, beta=8.0</h2>
+                <div id="col-dyn1"></div>
+            </div>
+            <div class="column dyn2-column">
+                <h2>Dyn alpha=0.05, beta=2.0</h2>
+                <div id="col-dyn2"></div>
+            </div>
+            <div class="column dynseq-column">
+                <h2>Dyn-Seq alpha=0.10, beta=1.0</h2>
+                <div id="col-dynseq"></div>
+            </div>
+            <div class="column static-column">
+                <h2>Static gamma=0.50, alpha=0.10, beta=1.0</h2>
+                <div id="col-static"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 四组配置（相对路径）
+        const configs = [
+            { key: 'dyn1', folder: 'dola_dyn_a0.02_b8.0', title: 'Dyn alpha=0.02, beta=8.0', params: { mode: 'dynamic', alpha: 0.02, beta: 8.0 } },
+            { key: 'dyn2', folder: 'dola_dyn_a0.05_b2.0', title: 'Dyn alpha=0.05, beta=2.0', params: { mode: 'dynamic', alpha: 0.05, beta: 2.0 } },
+            { key: 'dynseq', folder: 'dola_dynseq_a0.10_b1.0', title: 'Dyn-Seq alpha=0.10, beta=1.0', params: { mode: 'dynamic', jsd_scope: 'per_seq', alpha: 0.10, beta: 1.0 } },
+            { key: 'static', folder: 'dola_static_g0.50_a0.10_b1.0', title: 'Static gamma=0.50, alpha=0.10, beta=1.0', params: { mode: 'static', gamma: 0.50, alpha: 0.10, beta: 1.0 } },
+        ];
+
+        // prompt 列表（与 index.html 一致）
+        const prompts = [
+            "A cat with three eyes",
+            "A hand with only two fingers",
+            "A cat walking on two legs",
+            "A blue apple",
+            "Eyes stacked vertically on a face",
+            "A dog with butterfly wings",
+            "A fish swimming in the sky",
+            "A chair made of clouds",
+            "A clock with melting numbers",
+            "A tree with glowing leaves",
+            "A horse with zebra stripes",
+            "A spider with one giant leg",
+            "A bicycle with square wheels",
+            "A candle burning upside down",
+            "A snail with a transparent shell",
+            "A mountain floating in the ocean",
+            "A bird with four wings",
+            "A mirror reflecting the wrong person",
+            "A frog with fur",
+            "A tiger with polka dots",
+            "A shoe made of glass",
+            "A violin made of ice",
+            "A house shaped like a shoe",
+            "A rainbow in grayscale",
+            "A sun with a face",
+            "A moon shaped like a cube",
+            "A lion with feathers",
+            "A car with spider legs",
+            "A fish with human arms",
+            "A dog with a giraffe neck",
+            "A tree growing upside down",
+            "A butterfly with transparent wings",
+            "A candle with water instead of fire",
+            "A robot with a flower head",
+            "A dragon made of paper",
+            "A jellyfish floating in space",
+            "A cactus with fur",
+            "A snake with wings",
+            "A cloud shaped like a hand",
+            "A cat with butterfly antennae",
+            "A piano with rainbow keys",
+            "A sandwich glowing in the dark",
+            "A lamp with eyes",
+            "A human face on a flower",
+            "A turtle with rocket engines",
+            "A cube-shaped watermelon",
+            "A spider web made of gold",
+            "A fish with bird feathers",
+            "A book that glows",
+            "A horse with rainbow hair",
+            "A rabbit with dragon horns",
+            "A door in the middle of the desert",
+            "A penguin with flamingo legs",
+            "A banana with spikes",
+            "A lizard with a crystal tail",
+            "A river flowing upward",
+            "A cloud raining fire",
+            "A dragonfly with human eyes",
+            "A city floating in the sky",
+            "A hat made of glass",
+            "A watch with no hands",
+            "A giraffe with two heads",
+            "A wolf with glowing eyes",
+            "A cake floating in space",
+            "A bird with a fish tail",
+            "A cat with scales",
+            "A star shaped like a cube",
+            "A tree with clocks instead of leaves",
+            "A chair made of bones",
+            "A violin floating in the air",
+            "A rainbow made of fire",
+            "A snail with glowing horns",
+            "A train made of wood",
+            "A rabbit with butterfly wings",
+            "A dog with human ears",
+            "A spider with a smiley face",
+            "A sun that is black",
+            "A moon with rainbow colors",
+            "A bridge made of glass",
+            "A door on a cloud",
+            "A fish with glowing eyes",
+            "A chair shaped like a hand",
+            "A bird with no wings",
+            "A car with wings",
+            "A dragon breathing water",
+            "A flower made of metal",
+            "A crystal shaped like a heart",
+            "A mountain with a door",
+            "A dog with two tails",
+            "A fox with rainbow fur",
+            "A shoe made of fire",
+            "A tree with candy leaves",
+            "A spider with rainbow legs",
+            "A fish flying with balloons",
+            "A lamp shaped like the moon",
+            "A star made of ice",
+            "A castle floating on a cloud",
+            "A human hand made of stone",
+            "A cat with four tails",
+            "Two suns in the sky",
+            "A green ocean",
+            "Three moons above a city",
+            "A red snowman",
+            "A chair with three legs",
+            "Two blue apples",
+            "A black rainbow",
+            "Four eyes on one hand",
+            "A yellow forest",
+            "Three doors on one wall",
+            "A cow with two heads",
+            "A purple tree",
+            "Four shoes on one foot",
+            "A silver river",
+            "Two clocks on one tower",
+            "A red cloud",
+            "Five fingers but all thumbs",
+            "Three golden birds in a cage",
+            "A pink desert",
+            "A cat with two noses",
+            "Two green suns",
+            "A staircase going in circles",
+            "Three mountains floating in the sky",
+            "A white fire",
+            "Four black stars",
+            "A dog with three ears",
+            "A blue banana",
+            "Two purple fish flying",
+            "A green moon",
+            "Three windows stacked vertically",
+            "A red tree with no leaves",
+            "Four candles burning ice",
+            "A silver apple",
+            "Two chairs upside down",
+            "A yellow river flowing upward",
+            "Five eyes on one face",
+            "A pink mountain",
+            "Two golden turtles",
+            "Three doors in the sky",
+            "A black ocean with glowing waves",
+            "Four birds with square wings",
+            "A green cloud raining sand",
+            "Two suns side by side",
+            "A red giraffe",
+            "Three hands on one arm",
+            "A blue spider web",
+            "Two moons stacked vertically",
+            "Four flying rabbits",
+            "A golden tree with crystal leaves"
+        ];
+
+        function renderConfigSummary() {
+            const host = document.getElementById('config-summary');
+            configs.forEach(cfg => {
+                const card = document.createElement('div');
+                card.className = 'config-card';
+                const p = cfg.params || {};
+                const lines = [];
+                lines.push(`<div class="line"><strong>目录</strong>：<code>${cfg.folder}</code></div>`);
+                lines.push(`<div class="line"><strong>模式</strong>：${p.mode || 'n/a'}${p.jsd_scope ? ` (jsd_scope=${p.jsd_scope})` : ''}</div>`);
+                if (p.gamma !== undefined) lines.push(`<div class="line"><strong>gamma</strong>：${p.gamma}</div>`);
+                if (p.alpha !== undefined) lines.push(`<div class="line"><strong>alpha</strong>：${p.alpha}</div>`);
+                if (p.beta !== undefined) lines.push(`<div class="line"><strong>beta</strong>：${p.beta}</div>`);
+                card.innerHTML = `<h3>${cfg.title}</h3>` + lines.join('');
+                host.appendChild(card);
+            });
+        }
+
+        function generateImageItems(containerId, folderName) {
+            const container = document.getElementById(containerId);
+            for (let i = 1; i <= 148; i++) {
+                const item = document.createElement('div');
+                item.className = 'image-item';
+
+                const index = document.createElement('div');
+                index.className = 'image-index';
+                index.textContent = `#${i}`;
+
+                const prompt = document.createElement('div');
+                prompt.className = 'prompt';
+                prompt.textContent = prompts[i - 1];
+
+                const imageContainer = document.createElement('div');
+                imageContainer.className = 'image-container';
+
+                const img = document.createElement('img');
+                img.src = `${folderName}/${i}.jpg`; // 相对路径
+                img.alt = `Image ${i} from ${folderName}`;
+                img.loading = 'lazy';
+
+                imageContainer.appendChild(img);
+                item.appendChild(index);
+                item.appendChild(prompt);
+                item.appendChild(imageContainer);
+                container.appendChild(item);
+            }
+        }
+
+        // 渲染顶部参数卡片
+        renderConfigSummary();
+        // 四列生成
+        generateImageItems('col-dyn1', 'dola_dyn_a0.02_b8.0');
+        generateImageItems('col-dyn2', 'dola_dyn_a0.05_b2.0');
+        generateImageItems('col-dynseq', 'dola_dynseq_a0.10_b1.0');
+        generateImageItems('col-static', 'dola_static_g0.50_a0.10_b1.0');
+    </script>
+</body>
+</html>
